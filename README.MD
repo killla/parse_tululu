@@ -22,7 +22,9 @@
 
 Пример запуска программы с аргументами:
 
-`python3 parse_tululu_category.py --start_page 1 --end_page 2 --skip_imgs --skip_txt --json_path 'new_books.json' --dest_folder '/home/user'`
+```
+python3 parse_tululu_category.py --start_page 1 --end_page 2 --skip_imgs --skip_txt --json_path 'new_books.json' --dest_folder '/home/user'
+```
 
 Значения по умолчанию:
 - `--start_page = 1`
