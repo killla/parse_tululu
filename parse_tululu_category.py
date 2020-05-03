@@ -88,8 +88,8 @@ def get_book_url_from_pages(base_url, category, start_page, end_page):
     return book_urls
 
 
-def get_book(page, skip_imgs, skip_txt, img_folder, txt_folder):
-    soup = BeautifulSoup(page.text, 'lxml')
+def get_book(text, skip_imgs, skip_txt, img_folder, txt_folder):
+    soup = BeautifulSoup(text, 'lxml')
     txt_url = get_txt_url(soup)
     book_path = None
     img_src = None
@@ -116,11 +116,8 @@ def get_book(page, skip_imgs, skip_txt, img_folder, txt_folder):
             'genres': parse_genre(soup)
         }
         return book
-    else:
-        return None
 
 
-logging.basicConfig(level=logging.INFO)
 base_url = 'http://tululu.org/'
 category = 'l55/'
 img_subfolder = 'images'
@@ -128,6 +125,7 @@ txt_subfolder = 'books'
 timeout = 10
 
 if __name__ =='__main__':
+    logging.basicConfig(level=logging.INFO)
     logger.setLevel(logging.INFO)
     parser = argparse.ArgumentParser()
     parser.add_argument("--start_page",  default=1, type=int,
@@ -162,22 +160,25 @@ if __name__ =='__main__':
             try:
                 page = get_page(page_url)
                 if not page:
+                    logger.info(f'{page_url} страницы с книгой нет на сайте')
+                    eprint(f'{page_url} страницы с книгой нет на сайте')
                     break
-                book = get_book(page, args.skip_imgs, args.skip_txt, img_folder, txt_folder)
+                book = get_book(page.text, args.skip_imgs, args.skip_txt, img_folder, txt_folder)
                 if not book:
                     logger.info(f'{page_url} книги нет на сайте')
                     break
                 logger.info(f"{page_url}, {book['title']}, {book['author']}")
                 books.append(book)
-            except requests.HTTPError:
-                eprint('HTTPError. Соединение потеряно')
+                break
+            except requests.HTTPError as e:
+                eprint(f'HTTPError. {e.code}')
                 local_timeout += 10
                 sleep(local_timeout)
-            except ConnectionError:
-                eprint('Соединение потеряно')
+            except ConnectionError as e:
+                eprint(f'Соединение потеряно. {e.code}')
                 local_timeout += 10
                 sleep(local_timeout)
-            finally:
+            else:
                 break
 
 
